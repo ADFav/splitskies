@@ -1,0 +1,118 @@
+{
+  "name": "mobile-angular-ui",
+  "version": "1.3.4",
+  "description": "Mobile Angular UI",
+  "main": "dist/mobile-angular-ui.js",
+  "directories": {
+    "demo": "demo",
+    "dist": "dist"
+  },
+  "scripts": {
+    "build": "gulp build && ls -1 dist/css dist/js dist/fonts",
+    "clean": "rm -f dist",
+    "dev": "gulp dev",
+    "depcheck": "depcheck-ci",
+    "lint": "eslint . --quiet",
+    "test": "npm run depcheck && npm run lint && npm run test:unit && npm run test:e2e",
+    "test:unit": "karma start test/unit/karma.conf.js",
+    "server": "http-server . -p 8888",
+    "test:e2e:update-webdriver": "webdriver-manager update",
+    "pretest:e2e": "pid-terminator 8889 && nohup http-server . -p 8889 &",
+    "test:e2e": "protractor test/e2e/protractor.conf.js",
+    "test:docker": "docker run --rm --privileged -w /usr/src/app -v $PWD:/usr/src/app mcasimir/dind-node-build-runner:6.2.1 bash ci.sh",
+    "posttest:e2e": "pid-terminator 8889",
+    "release": "release-flow"
+  },
+  "pre-commit": [
+    "lint",
+    "depcheck",
+    "build"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mcasimir/mobile-angular-ui.git"
+  },
+  "author": {
+    "name": "mcasimir"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mcasimir/mobile-angular-ui/issues"
+  },
+  "devDependencies": {
+    "angular": "1.5.8",
+    "angular-mocks": "1.5.8",
+    "angular-route": "1.5.8",
+    "babel-core": "6.11.4",
+    "babel-eslint": "6.1.2",
+    "babel-plugin-syntax-async-functions": "6.8.0",
+    "babel-plugin-transform-regenerator": "6.11.4",
+    "babel-polyfill": "6.13.0",
+    "babel-preset-es2015": "6.9.0",
+    "bootstrap": "3.3.6",
+    "chromedriver": "2.21.2",
+    "codecov": "1.0.1",
+    "del": "2.2.2",
+    "depcheck-ci": "1.0.0",
+    "eslint": "3.2.0",
+    "eslint-config-google": "0.6.0",
+    "eslint-plugin-babel": "3.3.0",
+    "eslint-plugin-protractor": "1.27.1",
+    "fastclick": "1.0.6",
+    "fg-overthrow": "0.7.1",
+    "font-awesome": "4.6.3",
+    "gulp": "3.9.1",
+    "gulp-concat": "2.6.0",
+    "gulp-connect": "2.2.0",
+    "gulp-csso": "1.1.0",
+    "gulp-less": "3.0.5",
+    "gulp-mobilizer": "0.0.3",
+    "gulp-rename": "1.2.2",
+    "gulp-sequence": "0.4.5",
+    "gulp-sourcemaps": "1.6.0",
+    "gulp-uglify": "1.5.3",
+    "http-server": "0.9.0",
+    "jasmine-core": "2.4.1",
+    "jasmine-es6": "0.3.0",
+    "jasmine-spec-reporter": "2.7.0",
+    "karma": "1.2.0",
+    "karma-chrome-launcher": "0.2.3",
+    "karma-coverage": "1.1.1",
+    "karma-jasmine": "1.0.2",
+    "karma-mocha-reporter": "2.0.0",
+    "karma-selenium-webdriver-launcher": "0.0.3",
+    "pid-terminator": "1.0.1",
+    "pre-commit": "1.1.3",
+    "protractor": "3.3.0",
+    "release-flow": "1.2.1",
+    "selenium-webdriver": "2.53.1",
+    "temp": "0.8.3",
+    "wait-on": "1.5.2"
+  },
+  "gitHead": "5ec10ac8883e31beb91a940f133290a5146a126d",
+  "homepage": "https://github.com/mcasimir/mobile-angular-ui#readme",
+  "_id": "mobile-angular-ui@1.3.4",
+  "_shasum": "46b92b026320470e2bd6bba3827ec561a141306f",
+  "_from": "mobile-angular-ui@latest",
+  "_npmVersion": "3.9.3",
+  "_nodeVersion": "6.2.1",
+  "_npmUser": {
+    "name": "mcasimir",
+    "email": "maurizio.cas@gmail.com"
+  },
+  "dist": {
+    "shasum": "46b92b026320470e2bd6bba3827ec561a141306f",
+    "tarball": "https://registry.npmjs.org/mobile-angular-ui/-/mobile-angular-ui-1.3.4.tgz"
+  },
+  "maintainers": [
+    {
+      "name": "mcasimir",
+      "email": "maurizio.cas@gmail.com"
+    }
+  ],
+  "_npmOperationalInternal": {
+    "host": "packages-12-west.internal.npmjs.com",
+    "tmp": "tmp/mobile-angular-ui-1.3.4.tgz_1478468568882_0.6708978191018105"
+  },
+  "_resolved": "https://registry.npmjs.org/mobile-angular-ui/-/mobile-angular-ui-1.3.4.tgz"
+}
