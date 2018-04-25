@@ -1,0 +1,30 @@
+.lineItem {
+    background-color: grey;
+    background-color: rgba(0, 0, 0, 0.75);
+    box-sizing: border-box;
+    border: 3px solid black;
+    color: white;
+    position: absolute;
+    border-radius : 10px;
+}
+
+span.desc{
+    float : left;
+    clear : both;
+    font-size : 125%;
+    font-weight : bold;
+}
+span.price{
+    float : right;
+    font-size : 150%;
+    font-weight : bold;
+    /*clear : both;*/
+}
+
+img{
+    width : 100%;
+}
+
+button{
+    font-size : 3vh;
+}
