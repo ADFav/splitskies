@@ -10,6 +10,7 @@ const client = new vision.ImageAnnotatorClient({ keyFilename: "splitskies-adfav-
 
 app.use(express.static(__dirname + '/public'));
 
+//Parses Google Cloud Vision result into individual words
 function getWords(fullText, w, h) {
   var result = [];
   fullText.pages.forEach(pg => pg.blocks.forEach(b => b.paragraphs.forEach(p => p.words.forEach(function(word) {

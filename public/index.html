@@ -42,10 +42,7 @@
           <div class="scrollable-content">
             <div style="position:relative; width: 80%; left: 0%">
               <img ng-src={{receipt_img}} />
-              <div  ng-repeat="lineItem in lineItems" 
-                    ng-style="lineItem.style" 
-                    class="lineItem" 
-                    ng-hide="lineItem.price === ''">
+              <div ng-repeat="lineItem in lineItems" ng-style="lineItem.style" class="lineItem" ng-hide="lineItem.price === ''">
                 <span class="desc">{{lineItem.text}}</span>
                 <span class="price">{{"$" + lineItem.price.toFixed(2)}}</span>
               </div>
