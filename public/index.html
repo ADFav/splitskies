@@ -4,6 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="viewport" content="width=device-width, user-scalable=no" />
   <title>My App</title>
 
   <!-- Only required for desktop -->
@@ -19,44 +20,90 @@
   <script src="libs/angular/angular.js"></script>
   <script src="libs/angular-route/angular-route.js"></script>
   <script src="libs/mobile-angular-ui/dist/js/mobile-angular-ui.js"></script>
+  <script src="libs/mobile-angular-ui/dist/js/mobile-angular-ui.gestures.min.js"></script>
   <script src="script.js"></script>
 
 </head>
 
 <body ng-app="myApp">
+  <div ui-yield-to="modals">
+  </div>
   <!-- Sidebars -->
-  <div class="sidebar sidebar-left">LEFT</div>
   <div class="sidebar sidebar-right">RIGHT</div>
   <div class="app">
     <div class='app-body' ng-controller='testController'>
-      <div class="navbar navbar-app navbar-absolute-top">
-        <button ng-click="uploadFile()">upload me</button>
-        <button onclick="takeImage()">📷</button>
-        <input type="file" accept="image/*" id="cameraButton" onchange="previewImage(this)" ng-hide="false">
+      <div class="navbar navbar-app navbar-absolute-top text-center">
+        <h1>Splitskies</h1>
+        </div>
+      <div class="navbar navbar-app navbar-absolute-bottom text-center">
+        
+        <label class="btn-warning btn-lg btn-block text-center"><h1>📷</h1>
+          <input class="btn-warning" type="file" accept="image/*" id="cameraButton" onchange="previewImage(this)" ng-hide="true">
+        </label>
       </div>
-      <div class="navbar navbar-app navbar-absolute-bottom">BOTTOM</div>
+
       <!-- App body -->
 
       <div class='app-content'>
         <div class='scrollable'>
-          <div class="scrollable-content">
-            <div style="position:relative; width: 80%; left: 0%">
+
+          <!-- Receipt image -->
+          <div class="scrollable-content receipt-wrapper">
+            <div class="receipt-side">
               <img ng-src={{receipt_img}} />
-              <div ng-repeat="lineItem in lineItems" ng-style="lineItem.style" class="lineItem" ng-hide="lineItem.price === ''">
+
+              <!--Begin showing line items-->
+              <div drag-me = "" ng-repeat="lineItem in lineItems" ng-class="lineItem.classes" ng-style="lineItem.style" ng-click="lineItemClickHandler(lineItem)">
                 <span class="desc">{{lineItem.text}}</span>
-                <span class="price">{{"$" + lineItem.price.toFixed(2)}}</span>
+                <span class="price">{{priceify(lineItem.price)}}</span>
               </div>
             </div>
           </div>
+
+          <!-- Modals and Overlays -->
+          <!--Modal for editing -->
+          <div ui-content-for="modals">
+            <div class="modal modal-overlay" ui-if="modal1" ui-state='modal1'>
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button class="close" ui-turn-off="modal1">&times;</button>
+                    <h4 class="modal-title text-center">SPLITSKIES</h4>
+                  </div>
+                  <div class="modal-body">
+                    Description : <input ng-model="currentLineItem.text" /> <br> Cost : <input ng-model="currentLineItem.price" />
+                  </div>
+                  <div class="modal-footer">
+                    <button ui-turn-off="modal1" class="btn btn-primary">Done</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- List of people -->
+          <div class="scrollable-content people-list-wrapper text-center">
+            <button class="btn btn-info" ng-click="addPerson()"><h2>Add People</h2></button>
+            <div ng-repeat="person in people" ng-style="person.style" ng-click="assign(currentLineItem,person)">
+              {{person.name + ": $" + person.subtotal.toFixed(2)}}
+              <ul>
+                <li ng-repeat="lineItem in person.items track by $index">
+                  {{lineItem.text.slice(0,15) + " ... "}}
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Person Detail -->
+          <div class="scrollable-content" style="width : 50%;  height: 50%; float: right">
+          </div>
+
         </div>
-        <ng-view></ng-view>
       </div>
     </div>
+
   </div>
   <!-- ~ .app -->
-
-  <!-- Modals and Overlays -->
-  <div ui-yield-to="modals"></div>
 </body>
 
 </html>
