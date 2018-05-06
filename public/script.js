@@ -8,23 +8,20 @@ var splitskies = angular.module('myApp', ['ngRoute', 'mobile-angular-ui', 'mobil
 //         })
 // }]);
 
-splitskies.directive('dragMe', ['$drag', function($drag){
+splitskies.directive('dragMe', ['$drag', function($drag) {
   return {
     controller: function($scope, $element) {
-      $drag.bind($element, 
-        {
-          // limit movement of element to its parent
-          transform: $drag.TRANSLATE_INSIDE($element.parent()),
+      $drag.bind($element, {
+        // limit movement of element to its parent
+        transform: $drag.TRANSLATE_INSIDE($element.parent().parent()),
 
-          end: function(drag) {
-            // go back to initial position
-            drag.reset();
-          }
-        },
-        { // release touch when movement is outside bounduaries
-          sensitiveArea: $element.parent()
+        end: function(drag) {
+          // go back to initial position
+          drag.reset();
         }
-      );
+      }, { // release touch when movement is outside bounduaries
+        sensitiveArea: $element.parent()
+      });
     }
   };
 }]);
@@ -33,8 +30,6 @@ var r;
 
 
 var previewImage;
-var img_height, img_width;
-var takeImage;
 
 splitskies.controller("testController", function($scope, $http, SharedState, $drag) {
   SharedState.initialize($scope, "modal1", false);
@@ -46,27 +41,45 @@ splitskies.controller("testController", function($scope, $http, SharedState, $dr
   $scope.people = [];
   $scope.modal1 = false;
 
-  $scope.priceify = x => "$" + parseFloat(x).toFixed(2)
-  $scope.currentLineItem = null;
+  $scope.priceify = x => "$" + parseFloat(x).toFixed(2);
+  $scope.currentLineItem = null, $scope.currentPerson = null;
 
   previewImage = function(elem) {
     var reader = new FileReader();
     reader.readAsDataURL(elem.files[0]);
     reader.onloadend = function(e) {
+      console.log(e);
       $scope.receipt_img = reader.result;
       $scope.$apply();
       var img = new Image();
       img.onload = function() {
-        $scope.img_width = img.width;
-        $scope.img_height = img.height;
-        $scope.uploadFile();
+        var img_width = (img.width < img.height ? img.width : img.height);
+        var img_height = (img.width >= img.height ? img.width : img.height);
+        var canvas = document.getElementById("receipt-canvas");
+        var ctx = canvas.getContext("2d");
+        var scaleFactor = parseFloat(0.8 * window.innerWidth) / parseFloat(img_width);
+        canvas.height = img_height * scaleFactor;
+        canvas.width = img_width * scaleFactor;
+        var receipt_img = document.getElementById("receipt_img");
+
+        if (img.width > img.height) {
+          console.log("Oh god");
+          ctx.rotate(0.5 * Math.PI);
+          ctx.scale(scaleFactor, scaleFactor);
+          ctx.drawImage(receipt_img, 0, -1 * img_width);
+        }
+        else {
+          ctx.scale(scaleFactor, scaleFactor);
+          ctx.drawImage(receipt_img, 0, 0);
+        }
+        $scope.uploadFile(canvas.toDataURL('image/jpeg', 1.0), canvas.width, canvas.height);
       };
       img.src = reader.result;
     };
   };
 
-  $scope.uploadFile = function() {
-    $http.post("/analyze", { "img": $scope.receipt_img, "width": $scope.img_width, "height": $scope.img_height })
+  $scope.uploadFile = function(receipt, width, height) {
+    $http.post("/analyze", { "img": receipt, "width": width, "height": height })
       .then(function(response) {
         r = response.data;
         $scope.lineItems = response.data;
@@ -90,24 +103,33 @@ splitskies.controller("testController", function($scope, $http, SharedState, $dr
     $scope.people.push(person);
   };
 
-  $scope.assign = function(lineItem, person) {
-    lineItem.style["background-color"] = person.style["background-color"];
-    person.items.push(lineItem);
-    lineItem.owner = person;
-    person.subtotal = person.items.map(i => parseFloat(i.price)).reduce((a, b) => a + b, 0);
-    $scope.currentLineItem.classes.pop(1);
-    $scope.currentLineItem = null;
+  $scope.calculateSubtotal = function(person) {
+    return $scope.lineItems
+      .filter(lineItem => lineItem.owner == person)
+      .map(lineItem => parseFloat(lineItem.price))
+      .reduce((price, subtotal) => price + subtotal, 0);
   };
 
-  $scope.modalButtonClickHandler = function() {
-    console.log(SharedState.get("modal1"));
-    SharedState.turnOn("modal1");
+  $scope.assign = function(lineItem, person) {
+    console.log("assign");
+    var oldOwner = lineItem.owner;
+    lineItem.owner = person;
+    lineItem.style["background-color"] = person.style["background-color"];
+    if (oldOwner) {
+      oldOwner.items = oldOwner.items.filter(item => item != lineItem);
+      oldOwner.subtotal = $scope.calculateSubtotal(oldOwner);
+    }
+
+    person.items.push(lineItem);
+    person.subtotal = $scope.calculateSubtotal(person);
+    $scope.currentLineItem.classes = $scope.currentLineItem.classes.filter(c => c != "selected");
+    $scope.currentLineItem = null;
   };
 
   $scope.lineItemClickHandler = function(lineItem) {
     console.log(lineItem.price);
     if (lineItem == $scope.currentLineItem) {
-      SharedState.turnOn("modal1");
+      SharedState.turnOn("lineItemModal");
     }
     else {
       if ($scope.currentLineItem) {
@@ -118,6 +140,19 @@ splitskies.controller("testController", function($scope, $http, SharedState, $dr
     }
   };
 
+  $scope.personClickHandler = function(person) {
+    if ($scope.currentLineItem) {
+      $scope.assign($scope.currentLineItem, person);
+    }
+    else {
+      if (person == $scope.currentPerson) {
+        SharedState.turnOn("personModal");
+      }
+    }
+    $scope.currentPerson = person;
+  };
+  
+  
   $scope.editLineItem = function(lineItem, changes) {
 
   }

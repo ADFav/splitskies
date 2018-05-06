@@ -1,3 +1,7 @@
+*{
+    color : white;
+}
+
 .lineItem {
     background-color: grey;
     background-color: rgba(0, 0, 0);
@@ -60,10 +64,21 @@ button {
     border-right: 5px solid white;
 }
 
-h1{
-    font-size: 5vh;
+.camera-button{
+    border-radius:100%;
+    position : relative;
+    bottom : -15%;
 }
 
-h2{
-    font-size: 3vh;
+.navbar-absolute-bottom{
+    background-color: rgba(0,0,0,0);
+    border-width : 0px;
+}
+
+.modal *{
+    color : black;
+}
+
+.modal-title{
+    color : #007aff;
 }

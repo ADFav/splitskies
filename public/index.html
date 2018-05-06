@@ -28,16 +28,15 @@
 <body ng-app="myApp">
   <div ui-yield-to="modals">
   </div>
-  <!-- Sidebars -->
-  <div class="sidebar sidebar-right">RIGHT</div>
+
   <div class="app">
     <div class='app-body' ng-controller='testController'>
       <div class="navbar navbar-app navbar-absolute-top text-center">
         <h1>Splitskies</h1>
-        </div>
+      </div>
       <div class="navbar navbar-app navbar-absolute-bottom text-center">
-        
-        <label class="btn-warning btn-lg btn-block text-center"><h1>📷</h1>
+
+        <label class="btn-warning btn-lg  text-center camera-button"><h1>📷</h1>
           <input class="btn-warning" type="file" accept="image/*" id="cameraButton" onchange="previewImage(this)" ng-hide="true">
         </label>
       </div>
@@ -50,52 +49,72 @@
           <!-- Receipt image -->
           <div class="scrollable-content receipt-wrapper">
             <div class="receipt-side">
-              <img ng-src={{receipt_img}} />
-
               <!--Begin showing line items-->
-              <div drag-me = "" ng-repeat="lineItem in lineItems" ng-class="lineItem.classes" ng-style="lineItem.style" ng-click="lineItemClickHandler(lineItem)">
+              <div drag-me="" ng-repeat="lineItem in lineItems" ng-class="lineItem.classes" ng-style="lineItem.style" ng-click="lineItemClickHandler(lineItem)">
                 <span class="desc">{{lineItem.text}}</span>
                 <span class="price">{{priceify(lineItem.price)}}</span>
               </div>
+              <canvas id="receipt-canvas" height="300px" width="300px"></canvas>
+              <img ng-src={{receipt_img}} id="receipt_img" ng-hide="true" />
             </div>
           </div>
 
           <!-- Modals and Overlays -->
           <!--Modal for editing -->
           <div ui-content-for="modals">
-            <div class="modal modal-overlay" ui-if="modal1" ui-state='modal1'>
+
+            <div class="modal modal-overlay" ui-if="lineItemModal" ui-state='lineItemModal'>
               <div class="modal-dialog">
                 <div class="modal-content">
                   <div class="modal-header">
-                    <button class="close" ui-turn-off="modal1">&times;</button>
-                    <h4 class="modal-title text-center">SPLITSKIES</h4>
+                    <button class="close" ui-turn-off="lineItemModal">&times;</button>
+                    <h1 class="modal-title text-center">SPLITSKIES</h1>
                   </div>
                   <div class="modal-body">
                     Description : <input ng-model="currentLineItem.text" /> <br> Cost : <input ng-model="currentLineItem.price" />
                   </div>
                   <div class="modal-footer">
-                    <button ui-turn-off="modal1" class="btn btn-primary">Done</button>
+                    <button ui-turn-off="lineItemModal" class="btn btn-primary">Done</button>
                   </div>
                 </div>
               </div>
             </div>
+
+            <div class="modal modal-overlay" ui-if="personModal" ui-state='personModal'>
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button class="close" ui-turn-off="personModal">&times;</button>
+                    <h1 class="modal-title text-center">SPLITSKIES</h1>
+                  </div>
+                  <div class="modal-body">
+                    Description : <input ng-model="currentPerson.name" />
+                  </div>
+                  <div class="modal-footer">
+                    <button ui-turn-off="personModal" class="btn btn-primary">Done</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
           </div>
 
           <!-- List of people -->
           <div class="scrollable-content people-list-wrapper text-center">
             <button class="btn btn-info" ng-click="addPerson()"><h2>Add People</h2></button>
-            <div ng-repeat="person in people" ng-style="person.style" ng-click="assign(currentLineItem,person)">
-              {{person.name + ": $" + person.subtotal.toFixed(2)}}
-              <ul>
-                <li ng-repeat="lineItem in person.items track by $index">
-                  {{lineItem.text.slice(0,15) + " ... "}}
-                </li>
-              </ul>
+            <div ng-repeat="person in people" ng-style="person.style" ng-click="personClickHandler(person)">
+              <h2>{{person.name + ": $" + person.subtotal.toFixed(2)}}</h2>
+
             </div>
           </div>
 
           <!-- Person Detail -->
-          <div class="scrollable-content" style="width : 50%;  height: 50%; float: right">
+          <div class="scrollable-content container" style="width : 50%;  height: 50%; float: right">
+            <div ng-repeat="lineItem in currentPerson.items" ng-style = "{'background-color': currentPerson.style['background-color']}">
+              <span class="desc">{{lineItem.text}}</span>
+              <span class="price">{{priceify(lineItem.price)}}</span>
+            </div>
           </div>
 
         </div>
