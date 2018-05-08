@@ -32,8 +32,10 @@ var r;
 var previewImage;
 
 splitskies.controller("testController", function($scope, $http, SharedState, $drag) {
-  $scope.welcomeModal = true;
+  SharedState.initialize($scope,"welcomeModal",true)
   SharedState.turnOn("welcomeModal");
+  
+  $scope.newName = "";
 
   $scope.receipt_img = "";
   $scope.lineItems = [];
@@ -103,9 +105,9 @@ splitskies.controller("testController", function($scope, $http, SharedState, $dr
 
   var colors = ["red", "green", "blue", "orange", "yellow", "purple", "silver"];
 
-  $scope.addPerson = function() {
+  $scope.addPerson = function(name) {
     var person = {};
-    person.name = prompt("Name?");
+    person.name = name;
     person.subtotal = 0;
     person.items = [];
     person.style = { "background-color": colors[$scope.people.length % colors.length] };
@@ -142,7 +144,7 @@ splitskies.controller("testController", function($scope, $http, SharedState, $dr
     }
     else {
       if ($scope.currentLineItem) {
-        $scope.currentLineItem.classes.pop(1);
+        $scope.currentLineItem.classes = $scope.currentLineItem.classes.filter(c => c != "selected")
       }
       $scope.currentLineItem = lineItem;
       $scope.currentLineItem.classes.push("selected");

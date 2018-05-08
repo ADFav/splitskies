@@ -4,14 +4,14 @@
 
 .lineItem {
     background-color: grey;
-    border: 10px solid transparent;
     color: white;
     position: absolute;
     border-radius: 10px;
+    z-index:2;
 }
 
 .lineItem.selected{
-   border : 10px solid black;
+   color: black;
 }
 
 .lineItem.dont-show{
@@ -19,16 +19,14 @@
     opacity: 0;
 }
 
-span.desc {
+.desc {
     float: left;
     clear: both;
-    font-size: 125%;
     font-weight: bold;
 }
 
-span.price {
+.price {
     float: right;
-    font-size: 150%;
     font-weight: bold;
     /*clear : both;*/
 }
@@ -49,7 +47,7 @@ button {
 
 .receipt-wrapper{
     width : 100%; 
-    height: 50%; 
+    height: 66%; 
     float: left;
     border-bottom: 5px solid white;
 }
@@ -60,15 +58,9 @@ button {
 
 .people-list-wrapper{
     width : 50%;  
-    height: 50%; 
+    height: 34%; 
     float: left;
     border-right: 5px solid white;
-}
-
-.camera-button{
-    border-radius:100%;
-    position : relative;
-    bottom : -15%;
 }
 
 .navbar-absolute-bottom{

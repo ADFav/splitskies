@@ -4,6 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="viewport" content="width=device-width, user-scalable=no" />
   <title>Splitskies</title>
 
   <!-- Only required for desktop -->
@@ -34,8 +35,8 @@
         <h1>SPLITSKIES</h1>
       </div>
       <div class="navbar navbar-app navbar-absolute-bottom text-center">
-        <label class="btn-warning text-center camera-button"><h1>📷</h1>
-          <input type="file" accept="image/*;capture=camera" id="cameraButton" onchange="previewImage(this)" ng-hide="true">
+        <label class="btn-warning btn-lg btn-block text-center camera-button" for="cameraButton"><h1>📷</h1>
+          <input type="file" accept="image/*" id="cameraButton" onchange="previewImage(this)" ng-hide="true">
         </label>
       </div>
 
@@ -48,9 +49,9 @@
           <div class="scrollable-content receipt-wrapper">
             <div class="receipt-side">
               <!--Begin showing line items-->
-              <div drag-me="currentLineItem = null;" ng-repeat="lineItem in lineItems" ng-class="lineItem.classes" ng-style="lineItem.style" ng-click="lineItemClickHandler(lineItem)">
-                <span class="desc">{{lineItem.text}}</span>
-                <span class="price">{{priceify(lineItem.price)}}</span>
+              <div ng-repeat="lineItem in lineItems" ng-class="lineItem.classes" ng-style="lineItem.style" ng-click="lineItemClickHandler(lineItem)">
+                <h4 class="desc">{{lineItem.text}}</h4>
+                <h4 class="price">{{priceify(lineItem.price)}}</h4>
               </div>
               <canvas id="receipt-canvas" height="300px" width="300px"></canvas>
               <img ng-src={{receipt_img}} id="receipt_img" ng-hide="true" />
@@ -60,6 +61,43 @@
           <!-- Modals and Overlays -->
           <!--Modal for editing -->
           <div ui-content-for="modals">
+
+            <div class="modal" ui-if="welcomeModal" ui-state='welcomeModal'>
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button class="close" ui-turn-off="welcomeModal">&times;</button>
+                    <h1 class="modal-title text-center">SPLITSKIES</h1>
+                  </div>
+                  <div class="modal-body">
+                    <h1 class="text-center">Welcome to Splitskies!
+                    </h1>
+                    <h3>This site is intended as a mobile app prototype, and is designed to be viewed on a smartphone. Please be careful not to photograph any information you consider sensitive (i.e., credit card numbers)</h3>
+                    <div class="modal-footer">
+                      <button ui-turn-off="welcomeModal" class="btn btn-primary btn-lg">Done</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="modal modal-overlay" ui-if="addPersonModal" ui-state='addPersonModal'>
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button class="close" ui-turn-off="addPersonModal">&times;</button>
+                    <h1 class="modal-title text-center">SPLITSKIES</h1>
+                  </div>
+                  <div class="modal-body text-center">
+                    <h2>Name</h2> <input class = "h3" ng-model="newName" />
+                  </div>
+                  <div class="modal-footer">
+                    <button ui-turn-off="addPersonModal" class="btn btn-lg btn-primary" ng-click="addPerson(newName)">Done</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div class="modal modal-overlay" ui-if="lineItemModal" ui-state='lineItemModal'>
               <div class="modal-dialog">
                 <div class="modal-content">
@@ -67,28 +105,30 @@
                     <button class="close" ui-turn-off="lineItemModal">&times;</button>
                     <h1 class="modal-title text-center">SPLITSKIES</h1>
                   </div>
-                  <div class="modal-body">
-                    Description : <input ng-model="currentLineItem.text" /> <br> Cost : <input ng-model="currentLineItem.price" />
+                  <div class="modal-body text-center">
+                    <h2>Description : </h2><input class = "h3" ng-model="currentLineItem.text" />
+                    <h2>Cost : </h2><input class = "h3" ng-model="currentLineItem.price" />
                   </div>
                   <div class="modal-footer">
-                    <button ui-turn-off="lineItemModal" class="btn btn-primary">Done</button>
+                    <button ui-turn-off="lineItemModal" class="btn btn-lg btn-danger" ng-click="currentLineItem.classes.push('dont-show'); currentLineItem = null;">Hide Line Item</button>
+                    <button ui-turn-off="lineItemModal" class="btn btn-lg btn-primary">Done</button>
                   </div>
                 </div>
               </div>
             </div>
 
             <div class="modal modal-overlay" ui-if="personModal" ui-state='personModal'>
-              <div class="modal-dialog">
+              <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                   <div class="modal-header">
                     <button class="close" ui-turn-off="personModal">&times;</button>
                     <h1 class="modal-title text-center">SPLITSKIES</h1>
                   </div>
-                  <div class="modal-body">
-                    Description : <input ng-model="currentPerson.name" />
+                  <div class="modal-body text-center">
+                    <h2>Name: </h2><input classs = "h3" ng-model="currentPerson.name" />
                   </div>
                   <div class="modal-footer">
-                    <button ui-turn-off="personModal" class="btn btn-primary">Done</button>
+                    <button ui-turn-off="personModal" class="btn btn-lg btn-primary">Done</button>
                   </div>
                 </div>
               </div>
@@ -99,18 +139,18 @@
 
           <!-- List of people -->
           <div class="scrollable-content people-list-wrapper text-center">
-            <button class="btn btn-info" ng-click="addPerson()"><h2>Add People</h2></button>
+            <button class="btn btn-info" ui-turn-on="addPersonModal"><h2>Add People</h2></button>
             <div ng-repeat="person in people" ng-style="person.style" ng-click="personClickHandler(person)">
-              <h2>{{person.name + ": $" + person.subtotal.toFixed(2)}}</h2>
+              <h4>{{person.name + ": $" + person.subtotal.toFixed(2)}}</h4>
 
             </div>
           </div>
 
           <!-- Person Detail -->
-          <div class="scrollable-content container" style="width : 50%;  height: 50%; float: right" ng-style = "currentPerson.style">
-            <div ng-repeat="lineItem in currentPerson.items" >
-              <span class="desc">{{lineItem.text}}</span>
-              <span class="price">{{priceify(lineItem.price)}}</span>
+          <div class="scrollable-content container" style="width : 50%;  height: 34%; float: right" ng-style="currentPerson.style">
+            <div ng-repeat="lineItem in currentPerson.items">
+              <h6 class="desc">{{lineItem.text}}</h6>
+              <h6 class="price">{{priceify(lineItem.price)}}</h6>
             </div>
           </div>
 
