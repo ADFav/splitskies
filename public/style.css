@@ -4,18 +4,19 @@
 
 .lineItem {
     background-color: grey;
-    background-color: rgba(0, 0, 0);
-    opacity : 0.75;
-    box-sizing: border-box;
-    border: 3px solid black;
+    border: 10px solid transparent;
     color: white;
     position: absolute;
     border-radius: 10px;
 }
 
 .lineItem.selected{
-   border-width: 6px;
-   opacity : 0.85;
+   border : 10px solid black;
+}
+
+.lineItem.dont-show{
+    border-width : 0px;
+    opacity: 0;
 }
 
 span.desc {
@@ -42,8 +43,8 @@ button {
 
 .receipt-side {
     position: relative;
-    width: 80%;
-    left: 10%;
+    width: 100%;
+    left: 0%;
 }
 
 .receipt-wrapper{

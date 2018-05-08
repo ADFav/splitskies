@@ -19,7 +19,7 @@ app.use(express.static(__dirname + '/../public'));
 //Parses Google Cloud Vision result into individual words
 function getWords(fullText, w, h) {
   var result = [];
-  if(fullText.pages) {
+  if (fullText.pages) {
     fullText.pages.forEach(pg => pg.blocks.forEach(b => b.paragraphs.forEach(p => p.words.forEach(function(word) {
       var tmpWord = { text: "", style: getStyle(word.boundingBox.vertices, w, h) };
       word.symbols.forEach(function(symbol) {
@@ -31,82 +31,81 @@ function getWords(fullText, w, h) {
   result.sort((a, b) => a.style.top - b.style.top);
   result = mergeBoxes(result);
   return result;
-  }
-  
-  //Determines if two boxes are part of the same line item
-  //Currently, a little glitchy, not gonna lie.
-  function boxesIntersect(box, result) {
-    var box_bottom = box.style.top + box.style.height;
-    var result_bottom = result.style.top + result.style.height;
-    if (box.style.top > result_bottom || box_bottom < result.style.top) { return false; }
-    else if (box.style.top >= result.style.top && box_bottom <= result_bottom) { return true; }
-    else if (result.style.top >= box.style.top && result_bottom <= box_bottom) { return true; }
-    else if (box.style.top < result_bottom && result_bottom - box.style.top >= 1.00 * (box.style.height)) { return true; }
-    else if (box_bottom > result.style.top && box_bottom - result.style.top >= 1.00 * (box.style.height)) { return true; }
-    else return false;
-  }
-  
-  /* REGULAR EXPRESSIONS ARE WEIRD 
-   * /(\W|S)?\s*\d+\s*(\.|\,)?\s*\d\d\s*$/mg
-   * 
-   * (\W|S)?  - None or One non-word characters, or an S
-   * \s*      - Any amount of whitespace
-   * \d+      - 1 or more digits
-   * \s*      - Any amount of whitespace
-   * (\.|\,)? - One or maybe no periods or commas
-   * \s*      - More whitespace
-   * \d\d     - Two digits
-   * \s*      - Even more whitespace
-   * $        - End of line
-   * /m       - Multi-line
-   * g        - Global
-   */
-  
-  
-  //Combines boxes that are (most likely) part of the same line item on a receipt
-  function mergeBoxes(boxes) {
-    var results = [];
-    //Starts by determining right and bottom edges of each line item
-    boxes.forEach(function(box) {
-      box.style.right = box.style.left + box.style.width;
-      box.style.bottom = box.style.top + box.style.height;
-      var found = false;
-      results.forEach(function(result) {
-        if (!found && boxesIntersect(box, result)) {
-          //Combines boxes on same line
-          found = true;
-          result.words.push(box);
-          result.style.left = Math.min(result.style.left, box.style.left);
-          result.style.top = Math.min(result.style.top, box.style.top);
-          result.style.right = Math.max(result.style.right, box.style.right);
-          result.style.bottom = Math.max(result.style.bottom, box.style.bottom);
-        }
-      });
-      if (!found) {
-        //Create new line out of words that didn't match with anything else
-        var result = { words: [box], style: {} };
-        Object.keys(box.style).forEach(function(styleElem) {
-          result.style[styleElem] = box.style[styleElem];
-        });
-        results.push(result);
+}
+
+//Determines if two boxes are part of the same line item
+//Currently, a little glitchy, not gonna lie.
+function boxesIntersect(box, result) {
+  var box_bottom = box.style.top + box.style.height;
+  var result_bottom = result.style.top + result.style.height;
+  if (box.style.top > result_bottom || box_bottom < result.style.top) { return false; }
+  else if (box.style.top >= result.style.top && box_bottom <= result_bottom) { return true; }
+  else if (result.style.top >= box.style.top && result_bottom <= box_bottom) { return true; }
+  else if (box.style.top < result_bottom && result_bottom - box.style.top >= 1.00 * (box.style.height)) { return true; }
+  else if (box_bottom > result.style.top && box_bottom - result.style.top >= 1.00 * (box.style.height)) { return true; }
+  else return false;
+}
+
+/* REGULAR EXPRESSIONS ARE WEIRD 
+ * /(\W|S)?\s*\d+\s*(\.|\,)?\s*\d\d\s*$/mg
+ * 
+ * (\W|S)?  - None or One non-word characters, or an S
+ * \s*      - Any amount of whitespace
+ * \d+      - 1 or more digits
+ * \s*      - Any amount of whitespace
+ * (\.|\,)? - One or maybe no periods or commas
+ * \s*      - More whitespace
+ * \d\d     - Two digits
+ * \s*      - Even more whitespace
+ * $        - End of line
+ * /m       - Multi-line
+ * g        - Global
+ */
+
+
+//Combines boxes that are (most likely) part of the same line item on a receipt
+function mergeBoxes(boxes) {
+  var results = [];
+  //Starts by determining right and bottom edges of each line item
+  boxes.forEach(function(box) {
+    box.style.right = box.style.left + box.style.width;
+    box.style.bottom = box.style.top + box.style.height;
+    var found = false;
+    results.forEach(function(result) {
+      if (!found && boxesIntersect(box, result)) {
+        //Combines boxes on same line
+        found = true;
+        result.words.push(box);
+        result.style.left = Math.min(result.style.left, box.style.left);
+        result.style.top = Math.min(result.style.top, box.style.top);
+        result.style.right = Math.max(result.style.right, box.style.right);
+        result.style.bottom = Math.max(result.style.bottom, box.style.bottom);
       }
     });
-  
-    results.forEach(function(result) {
-          //Sort words from left to right, then combine words into single string
-          result.words = result.words.sort((a, b) => a.style.left - b.style.left);
-          result.text = result.words.reduce((a, b) => a + " " + b.text, "");
-  
-          //Split into text description and price
-          var price = result.text.match(/(\W|S)?\s*\d+\s*(\.|\,)?\s*\d\d\s*$/mg);
-          if (price) {
-            result.text = result.text.slice(0, result.text.indexOf(price[0]));
-            result.price = processPrice(price[0]);
-          }
-          else {
-            result.price = "";
-            result.style.visibility = "hidden";
-          }//Standardize style into CSS style
+    if (!found) {
+      //Create new line out of words that didn't match with anything else
+      var result = { words: [box], style: {} };
+      Object.keys(box.style).forEach(function(styleElem) {
+        result.style[styleElem] = box.style[styleElem];
+      });
+      results.push(result);
+    }
+  });
+
+  results.forEach(function(result) {
+    //Sort words from left to right, then combine words into single string
+    result.words = result.words.sort((a, b) => a.style.left - b.style.left);
+    result.text = result.words.reduce((a, b) => a + " " + b.text, "");
+
+    //Split into text description and price
+    var price = result.text.match(/(\W|S)?\s*\d+\s*(\.|\,)?\s*\d\d\s*$/mg);
+    if (price) {
+      result.text = result.text.slice(0, result.text.indexOf(price[0]));
+      result.price = processPrice(price[0]);
+    }
+    else {
+      result.price = 0;
+    } //Standardize style into CSS style
     result.style.height = result.style.bottom - result.style.top;
     result.style.width = result.style.right - result.style.left;
     delete result.style.bottom;
@@ -118,9 +117,9 @@ function getWords(fullText, w, h) {
 }
 
 //Turns price into standard looking price
-function processPrice(price){
-  price = price.replace(/\s*(\W|S)?\s*/,"");
-  price = price.replace(/(\,|\.)/,".");
+function processPrice(price) {
+  price = price.replace(/\s*(\W|S)?\s*/, "");
+  price = price.replace(/(\,|\.)/, ".");
   return parseFloat(price);
 }
 

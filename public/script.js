@@ -19,7 +19,7 @@ splitskies.directive('dragMe', ['$drag', function($drag) {
           // go back to initial position
           drag.reset();
         }
-      }, { // release touch when movement is outside bounduaries
+      }, { // release touch when movement is outside boundaries
         sensitiveArea: $element.parent()
       });
     }
@@ -32,7 +32,8 @@ var r;
 var previewImage;
 
 splitskies.controller("testController", function($scope, $http, SharedState, $drag) {
-  SharedState.initialize($scope, "modal1", false);
+  $scope.welcomeModal = true;
+  SharedState.turnOn("welcomeModal");
 
   $scope.receipt_img = "";
   $scope.lineItems = [];
@@ -57,7 +58,7 @@ splitskies.controller("testController", function($scope, $http, SharedState, $dr
         var img_height = (img.width >= img.height ? img.width : img.height);
         var canvas = document.getElementById("receipt-canvas");
         var ctx = canvas.getContext("2d");
-        var scaleFactor = parseFloat(0.8 * window.innerWidth) / parseFloat(img_width);
+        var scaleFactor = parseFloat(window.innerWidth) / parseFloat(img_width);
         canvas.height = img_height * scaleFactor;
         canvas.width = img_width * scaleFactor;
         var receipt_img = document.getElementById("receipt_img");
@@ -85,6 +86,14 @@ splitskies.controller("testController", function($scope, $http, SharedState, $dr
         $scope.lineItems = response.data;
         $scope.lineItems.forEach(function(lineItem) {
           lineItem.classes = ["lineItem"];
+          console.log(lineItem.text);
+          if( lineItem.price > 500 || 
+              lineItem.price <= 0 || 
+              lineItem.text.toLowerCase().indexOf("total") > 0 || 
+              lineItem.text.toLowerCase().indexOf("cash") > 0 ||
+              lineItem.text.toLowerCase().indexOf("change") > 0 ){
+            lineItem.classes.push("dont-show");
+          }
         });
       }, function(err) {
         console.log(err);
@@ -137,6 +146,7 @@ splitskies.controller("testController", function($scope, $http, SharedState, $dr
       }
       $scope.currentLineItem = lineItem;
       $scope.currentLineItem.classes.push("selected");
+      $scope.currentLineItem.classes = $scope.currentLineItem.classes.filter(c => c != "dont-show");
     }
   };
 
@@ -151,8 +161,8 @@ splitskies.controller("testController", function($scope, $http, SharedState, $dr
     }
     $scope.currentPerson = person;
   };
-  
-  
+
+
   $scope.editLineItem = function(lineItem, changes) {
 
   }

@@ -4,8 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="viewport" content="width=device-width, user-scalable=no" />
-  <title>My App</title>
+  <title>Splitskies</title>
 
   <!-- Only required for desktop -->
   <link rel="stylesheet" href="libs/mobile-angular-ui/dist/css/mobile-angular-ui-hover.min.css" />
@@ -32,12 +31,11 @@
   <div class="app">
     <div class='app-body' ng-controller='testController'>
       <div class="navbar navbar-app navbar-absolute-top text-center">
-        <h1>Splitskies</h1>
+        <h1>SPLITSKIES</h1>
       </div>
       <div class="navbar navbar-app navbar-absolute-bottom text-center">
-
-        <label class="btn-warning btn-lg  text-center camera-button"><h1>📷</h1>
-          <input class="btn-warning" type="file" accept="image/*" id="cameraButton" onchange="previewImage(this)" ng-hide="true">
+        <label class="btn-warning text-center camera-button"><h1>📷</h1>
+          <input type="file" accept="image/*;capture=camera" id="cameraButton" onchange="previewImage(this)" ng-hide="true">
         </label>
       </div>
 
@@ -50,7 +48,7 @@
           <div class="scrollable-content receipt-wrapper">
             <div class="receipt-side">
               <!--Begin showing line items-->
-              <div drag-me="" ng-repeat="lineItem in lineItems" ng-class="lineItem.classes" ng-style="lineItem.style" ng-click="lineItemClickHandler(lineItem)">
+              <div drag-me="currentLineItem = null;" ng-repeat="lineItem in lineItems" ng-class="lineItem.classes" ng-style="lineItem.style" ng-click="lineItemClickHandler(lineItem)">
                 <span class="desc">{{lineItem.text}}</span>
                 <span class="price">{{priceify(lineItem.price)}}</span>
               </div>
@@ -62,7 +60,6 @@
           <!-- Modals and Overlays -->
           <!--Modal for editing -->
           <div ui-content-for="modals">
-
             <div class="modal modal-overlay" ui-if="lineItemModal" ui-state='lineItemModal'>
               <div class="modal-dialog">
                 <div class="modal-content">
@@ -110,8 +107,8 @@
           </div>
 
           <!-- Person Detail -->
-          <div class="scrollable-content container" style="width : 50%;  height: 50%; float: right">
-            <div ng-repeat="lineItem in currentPerson.items" ng-style = "{'background-color': currentPerson.style['background-color']}">
+          <div class="scrollable-content container" style="width : 50%;  height: 50%; float: right" ng-style = "currentPerson.style">
+            <div ng-repeat="lineItem in currentPerson.items" >
               <span class="desc">{{lineItem.text}}</span>
               <span class="price">{{priceify(lineItem.price)}}</span>
             </div>
